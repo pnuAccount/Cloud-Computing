@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <title>부하 테스트 결과</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h1>부하 테스트 결과</h1>
+<p><strong>대상 웹사이트:</strong> <span th:text="${targetUrl}"></span></p>
+<p><strong>테스트 시간:</strong> <span th:text="${duration}"></span> 초</p>
+<p><strong>사용자 수:</strong> <span th:text="${numberOfUsers}"></span> 명</p>
+<p><strong>성공 횟수:</strong> <span th:text="${successCount}"></span></p>
+<p><strong>실패 횟수:</strong> <span th:text="${failureCount}"></span></p>
+<br>
+<a th:href="@{/}">새로운 테스트 시작</a>
+</body>
+</html>
