@@ -5,38 +5,69 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.*;
 
-//
 @Slf4j
 public class VisitorQueueService {
     private static final Map<String, Long> activeVisitors = new ConcurrentHashMap<>();
-    private static final int MAX_CONCURRENT_VISITORS = 1;
-    private static final long TIMEOUT_MILLIS = 10_000; // 10초 타임아웃
+    private static final long VISITOR_TIMEOUT = 10_000; // 10초
 
-    public static boolean isOverCapacity() {
-        return activeVisitors.size() >= MAX_CONCURRENT_VISITORS;
+    public static boolean isOverCapacity(int threshold) {
+        return activeVisitors.size() >= threshold;
     }
 
     public static boolean isRegistered(String visitorId) {
         return activeVisitors.containsKey(visitorId);
     }
 
-    public static synchronized void registerVisitor(String visitorId) {
+    public static void registerVisitor(String visitorId) {
         activeVisitors.put(visitorId, System.currentTimeMillis());
-        log.info("등록된 방문자: {}, 현재 접속자 수: {}", visitorId, activeVisitors.size());
+        log.debug("방문자 등록: {}, 현재 접속자: {}", visitorId, activeVisitors.size());
     }
 
-    public static synchronized void cleanupTimeoutVisitors() {
+    public static void cleanupTimeoutVisitors() {
         long now = System.currentTimeMillis();
-        activeVisitors.entrySet().removeIf(entry -> now - entry.getValue() > TIMEOUT_MILLIS);
+        activeVisitors.entrySet().removeIf(entry -> (now - entry.getValue()) > VISITOR_TIMEOUT);
     }
 
-    public static synchronized void pingVisitor(String visitorId) {
+    public static void pingVisitor(String visitorId) {
         if (activeVisitors.containsKey(visitorId)) {
             activeVisitors.put(visitorId, System.currentTimeMillis());
-            log.info("Ping 수신 - visitorId: {}", visitorId);
         }
     }
 }
+
+
+// OG code
+//@Slf4j
+//public class VisitorQueueService {
+//    private static final Map<String, Long> activeVisitors = new ConcurrentHashMap<>();
+//    private static final int MAX_CONCURRENT_VISITORS = 1;
+//    private static final long TIMEOUT_MILLIS = 10_000; // 10초 타임아웃
+//
+//    public static boolean isOverCapacity() {
+//        return activeVisitors.size() >= MAX_CONCURRENT_VISITORS;
+//    }
+//
+//    public static boolean isRegistered(String visitorId) {
+//        return activeVisitors.containsKey(visitorId);
+//    }
+//
+//    public static synchronized void registerVisitor(String visitorId) {
+//        activeVisitors.put(visitorId, System.currentTimeMillis());
+//        log.info("등록된 방문자: {}, 현재 접속자 수: {}", visitorId, activeVisitors.size());
+//    }
+//
+//    public static synchronized void cleanupTimeoutVisitors() {
+//        long now = System.currentTimeMillis();
+//        activeVisitors.entrySet().removeIf(entry -> now - entry.getValue() > TIMEOUT_MILLIS);
+//    }
+//
+//    public static synchronized void pingVisitor(String visitorId) {
+//        if (activeVisitors.containsKey(visitorId)) {
+//            activeVisitors.put(visitorId, System.currentTimeMillis());
+//            log.info("Ping 수신 - visitorId: {}", visitorId);
+//        }
+//    }
+//}
 
 
 //

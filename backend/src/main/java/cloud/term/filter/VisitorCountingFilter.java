@@ -11,52 +11,103 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.UUID;
 
-//
 @Slf4j
 public class VisitorCountingFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
         HttpSession session = httpRequest.getSession();
 
-        String visitorId = null;
+        String visitorId = getVisitorIdFromCookies(httpRequest);
 
-        // 쿠키에서 visitor_id 찾기
-        Cookie[] cookies = httpRequest.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("visitor_id".equals(cookie.getName())) {
-                    visitorId = cookie.getValue();
-                    break;
-                }
-            }
-        }
-
-        // 세션에서도 한번 더 확인 (브라우저는 JSESSIONID 로 세션 유지를 시도함)
         if (visitorId == null) {
             visitorId = (String) session.getAttribute("visitor_id");
         }
 
-        // 그래도 없으면 새로 발급 (최초 방문)
         if (visitorId == null) {
             visitorId = UUID.randomUUID().toString();
-            log.info("필터에서 visitor_id 새로 발급: {}", visitorId);
+            log.info("새로운 방문자 ID 발급: {}", visitorId);
+            setVisitorCookie(httpResponse, visitorId);
         }
 
-        // 세션에 visitor_id 저장
         session.setAttribute("visitor_id", visitorId);
-
-        // 쿠키에도 visitor_id 세팅 (브라우저도 다음 요청부터 유지 가능하게)
-        Cookie visitorCookie = new Cookie("visitor_id", visitorId);
-        visitorCookie.setPath("/");
-        visitorCookie.setHttpOnly(false);
-        ((HttpServletResponse) response).addCookie(visitorCookie);
-
         chain.doFilter(request, response);
     }
 
+    private String getVisitorIdFromCookies(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("visitor_id".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    private void setVisitorCookie(HttpServletResponse response, String visitorId) {
+        Cookie cookie = new Cookie("visitor_id", visitorId);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true); // HTTPS 사용 시
+        cookie.setMaxAge(60 * 60); // 1 시간 유지
+        response.addCookie(cookie);
+    }
 }
+
+
+
+
+// OG code
+//@Slf4j
+//public class VisitorCountingFilter implements Filter {
+//
+//    @Override
+//    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+//        HttpServletRequest httpRequest = (HttpServletRequest) request;
+//        HttpSession session = httpRequest.getSession();
+//
+//        String visitorId = null;
+//
+//        // 쿠키에서 visitor_id 찾기
+//        Cookie[] cookies = httpRequest.getCookies();
+//        if (cookies != null) {
+//            for (Cookie cookie : cookies) {
+//                if ("visitor_id".equals(cookie.getName())) {
+//                    visitorId = cookie.getValue();
+//                    break;
+//                }
+//            }
+//        }
+//
+//        // 세션에서도 한번 더 확인 (브라우저는 JSESSIONID 로 세션 유지를 시도함)
+//        if (visitorId == null) {
+//            visitorId = (String) session.getAttribute("visitor_id");
+//        }
+//
+//        // 그래도 없으면 새로 발급 (최초 방문)
+//        if (visitorId == null) {
+//            visitorId = UUID.randomUUID().toString();
+//            log.info("필터에서 visitor_id 새로 발급: {}", visitorId);
+//        }
+//
+//        // 세션에 visitor_id 저장
+//        session.setAttribute("visitor_id", visitorId);
+//
+//        // 쿠키에도 visitor_id 세팅 (브라우저도 다음 요청부터 유지 가능하게)
+//        Cookie visitorCookie = new Cookie("visitor_id", visitorId);
+//        visitorCookie.setPath("/");
+//        visitorCookie.setHttpOnly(false);
+//        ((HttpServletResponse) response).addCookie(visitorCookie);
+//
+//        chain.doFilter(request, response);
+//    }
+//
+//}
+
 
 //public class VisitorCountingFilter implements Filter {
 //    @Override
