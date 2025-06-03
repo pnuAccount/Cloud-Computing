@@ -1,0 +1,17 @@
+<div id="status"></div>
+
+<script>
+    setInterval(() => {
+      fetch("/ping", { method: "POST" });
+      fetch("/queue/status")
+        .then(res => res.json())
+        .then(data => {
+          const el = document.getElementById("status");
+          if (data.inQueue) {
+            el.innerText = `대기 중입니다. 현재 순번: ${data.position}`;
+          } else {
+            el.innerText = "입장 완료!";
+          }
+        });
+    }, 3000);
+</script>
