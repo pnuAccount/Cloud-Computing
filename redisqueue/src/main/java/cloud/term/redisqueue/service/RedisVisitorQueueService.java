@@ -1,5 +1,6 @@
 package cloud.term.redisqueue.service;
 
+import io.lettuce.core.AbstractRedisAsyncCommands;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,14 +14,16 @@ import java.util.concurrent.TimeUnit;
 
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class RedisVisitorQueueService {
 
     private final StringRedisTemplate redisTemplate;
 
     private static final String VISITOR_KEY_PREFIX = "visitor:";
+    private static final String QUEUED_SET_KEY = "booking:queued:set";
 
-    // 중복 확인 후 저장
+    // 방문자 TTL 저장 (중복 방지용)
     public void saveVisitorIfNotExists(String visitorId) {
         String key = VISITOR_KEY_PREFIX + visitorId;
         Boolean exists = redisTemplate.hasKey(key);
@@ -28,6 +31,22 @@ public class RedisVisitorQueueService {
         if (Boolean.FALSE.equals(exists)) {
             redisTemplate.opsForValue().set(key, "1", 10, TimeUnit.MINUTES);
         }
+    }
+
+    // 대기열 세트에 포함 여부
+    public boolean isVisitorInQueue(String visitorId) {
+        Boolean result = redisTemplate.opsForSet().isMember(QUEUED_SET_KEY, visitorId);
+        return Boolean.TRUE.equals(result);
+    }
+
+    // 대기열 세트에 추가
+    public void addToQueuedSet(String visitorId) {
+        redisTemplate.opsForSet().add(QUEUED_SET_KEY, visitorId);
+    }
+
+    // 대기열 세트에서 제거
+    public void removeFromQueuedSet(String visitorId) {
+        redisTemplate.opsForSet().remove(QUEUED_SET_KEY, visitorId);
     }
 }
 
