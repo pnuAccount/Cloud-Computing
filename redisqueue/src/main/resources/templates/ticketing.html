@@ -8,5 +8,17 @@
 <p>Your visitor ID: <span th:text="${visitorId}">UUID</span></p>
 <p>Your server IP: <span th:text="${serverIp}">UUID</span></p>
 <p>Your server Name: <span th:text="${serverName}">UUID</span></p>
+<button id="applyBtn">예약 신청</button>
+<script>
+    document.getElementById('applyBtn').addEventListener('click', function() {
+        fetch('/apply', {
+            method: 'POST',
+            credentials: 'same-origin' // 쿠키 포함해서 보내기
+        })
+        .then(response => response.text())
+        .then(data => alert(data))
+        .catch(error => console.error('Error:', error));
+    });
+</script>
 </body>
 </html>

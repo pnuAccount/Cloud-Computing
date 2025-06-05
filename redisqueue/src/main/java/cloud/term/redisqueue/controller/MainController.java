@@ -66,7 +66,7 @@ public class MainController {
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
-    @GetMapping("/apply")
+    @PostMapping("/apply")
     public ResponseEntity<String> apply(HttpSession session) {
         String visitorId = (String) session.getAttribute("visitor_id");
 
