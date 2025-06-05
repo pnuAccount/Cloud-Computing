@@ -15,14 +15,13 @@ import java.util.concurrent.TimeUnit;
 public class BookingService {
 
     private final StringRedisTemplate redisTemplate;
+    private final RedisSettingsService redisSettingsService;
 
     private static final String LOCK_KEY = "booking:lock";
     private static final String QUEUE_KEY = "booking:queue:list";        // 예약 요청 큐 (list)
     private static final String BOOKED_SET_KEY = "booking:booked:set";   // 예약 확정 사용자 집합 (set)
     private static final String REJECTED_SET_KEY = "booking:rejected:set"; // 예약 실패 사용자 집합 (set)
     private static final String QUEUED_SET_KEY = "booking:queued:set";   // 대기열 세트 (set)
-
-    private final int maxBooking = 1;
 
     // 현재 예매된 사용자 수 확인
     public long getBookingCount() {
@@ -43,6 +42,8 @@ public class BookingService {
         }
 
         long bookingCount = getBookingCount();
+        int maxBooking = redisSettingsService.getSettingAsInt("maxBooking", 3);
+
         if (bookingCount >= maxBooking) {
             return BookingRequestResult.CAPACITY_FULL;
         }
@@ -56,8 +57,9 @@ public class BookingService {
 
     // 예약 요청 큐에서 하나 꺼내 예약 처리 (스케줄러용)
     public void processNextBookingRequest() {
+        int lockTTL = redisSettingsService.getSettingAsInt("bookingLockTTLSeconds", 5);
         Boolean lockAcquired = redisTemplate.opsForValue()
-                .setIfAbsent(LOCK_KEY, "1", 5, TimeUnit.SECONDS);
+                .setIfAbsent(LOCK_KEY, "1", lockTTL, TimeUnit.SECONDS);
 
         if (Boolean.FALSE.equals(lockAcquired)) {
             log.warn("[LOCK 대기 중] 예약 처리 중");
@@ -81,6 +83,8 @@ public class BookingService {
             }
 
             long bookingCount = getBookingCount();
+            int maxBooking = redisSettingsService.getSettingAsInt("maxBooking", 3);
+
             if (bookingCount < maxBooking) {
                 redisTemplate.opsForSet().add(BOOKED_SET_KEY, visitorId);
                 log.info("[예약 성공] {} (현재 예약 수: {})", visitorId, bookingCount + 1);

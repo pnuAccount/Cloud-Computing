@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>관리자 페이지</title>
+</head>
+<body>
+<h1>시스템 설정 관리</h1>
+<form action="/system" method="post">
+    <div>
+        <label for="maxBooking">예약 정원:</label>
+        <input type="number" id="maxBooking" name="maxBooking" min="1" required
+               th:value="${settings.maxBooking}">
+    </div>
+    <div>
+        <label for="visitorTTLMinutes">방문자 TTL (분):</label>
+        <input type="number" id="visitorTTLMinutes" name="visitorTTLMinutes" min="1" required
+               th:value="${settings.visitorTTLMinutes}">
+    </div>
+    <div>
+        <label for="bookingLockTTLSeconds">예약 락 TTL (초):</label>
+        <input type="number" id="bookingLockTTLSeconds" name="bookingLockTTLSeconds" min="1" required
+               th:value="${settings.bookingLockTTLSeconds}">
+    </div>
+    <button type="submit">설정 저장</button>
+</form>
+<p th:if="${message}" th:text="${message}"></p>
+</body>
+</html>

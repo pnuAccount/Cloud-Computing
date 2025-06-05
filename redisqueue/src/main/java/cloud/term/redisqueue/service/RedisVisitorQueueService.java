@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class RedisVisitorQueueService {
 
     private final StringRedisTemplate redisTemplate;
+    private final RedisSettingsService redisSettingsService;
 
     private static final String VISITOR_KEY_PREFIX = "visitor:";
     private static final String QUEUED_SET_KEY = "booking:queued:set";
@@ -29,7 +30,8 @@ public class RedisVisitorQueueService {
         Boolean exists = redisTemplate.hasKey(key);
 
         if (Boolean.FALSE.equals(exists)) {
-            redisTemplate.opsForValue().set(key, "1", 10, TimeUnit.MINUTES);
+            int visitorTTL = redisSettingsService.getSettingAsInt("visitorTTLMinutes", 10);
+            redisTemplate.opsForValue().set(key, "1", visitorTTL, TimeUnit.MINUTES);
         }
     }
 
