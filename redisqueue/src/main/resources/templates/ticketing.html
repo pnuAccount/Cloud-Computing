@@ -128,9 +128,28 @@
         })
             .then(response => response.json())
             .then(data => {
-                alert(data.message);
+                alert(data.message); // Show success message
+                // Hide the login card
+                document.querySelector('.login').style.display = 'none';
+
+                // Create and show a logged-in message
+                const container = document.querySelector('.container');
+                const loggedInCard = document.createElement('div');
+                loggedInCard.className = 'card info'; // Reusing info card style
+                loggedInCard.innerHTML = `
+                    <h3>🎉 Logged In Successfully!</h3>
+                    <p>Welcome, <span style="font-weight: bold;">${id}</span>!</p>
+                    <p>You can now proceed with your reservation.</p>
+                `;
+                container.insertBefore(loggedInCard, document.getElementById('applyBtn')); // Insert before the apply button
+
+                // Enable the apply button if it was disabled before login
+                document.getElementById('applyBtn').disabled = false;
             })
-            .catch(error => console.error('Login error:', error));
+            .catch(error => {
+                console.error('Login error:', error);
+                alert('An error occurred during login. Please try again.');
+            });
     });
 
     document.getElementById('applyBtn').addEventListener('click', function() {
@@ -138,9 +157,19 @@
             method: 'POST',
             credentials: 'include'
         })
-            .then(response => response.text())
-            .then(data => alert(data))
-            .catch(error => console.error('Error:', error));
+        .then(response => {
+            return response.text().then(text => {
+                if (response.ok) {
+                    window.location.href = '/apply-success.html';
+                } else {
+                    alert('예약 실패: ' + text);
+                }
+            });
+         })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
+        });
     });
 </script>
 </body>
