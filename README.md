@@ -91,9 +91,7 @@ Redis 기반 예약 대기열 시스템: 티켓팅 시나리오
         - visitorTTLMinutes: 10
         - bookingLockTTLSeconds: 5
      - Redis Setting
-       - booking:settings 해시에 설정값 저장 
-       - 30초 주기로 설정값 캐시 갱신 
-       - 관리자 페이지(/system)에서 실시간 설정 변경 가능
+       - 관리자 페이지(/system)에서 실시간으로 최대 예약자 수 변경 가능
   4. 트래픽 제어 시스템
      - "/" 및 "/ticketing" 경로에 대한 요청 인터셉트
      - 방문자 정보를 Redis에 저장 
@@ -101,7 +99,7 @@ Redis 기반 예약 대기열 시스템: 티켓팅 시나리오
      - /system 경로로 설정값 조회/수정 기능 제공
      - RedisSettingsService와 연동하여 실시간 설정 관리
   6. Redis 사용 패턴 요약
-  
+
      | Redis Key              | 용도                       | 자료구조              |
      | ---------------------- | ------------------------ | ----------------- |
      | `booking:settings`     | 시스템 전체 설정값 저장            | Hash              |
@@ -113,7 +111,7 @@ Redis 기반 예약 대기열 시스템: 티켓팅 시나리오
   7. 시스템 흐름
      1. 사용자 접속 → VisitorCountingFilter가 visitor_id 생성/확인
      2. 예약 요청(/apply) → BookingService가 대기열 등록
-     3. 스케줄러가 주기적으로 대기열 처리
+     3. 스케줄러가 최대 예약자 수 기반, 주기적 대기열 처리
      4. 관리자는 /system 페이지에서 실시간으로 시스템 설정 조정
 
 
@@ -124,10 +122,12 @@ Redis 기반 예약 대기열 시스템: 티켓팅 시나리오
 
 - 부하 테스트 시나리오
   - jmeter 셋팅
-    - Threads :
-    - Ramp-Up Period : 
-    - Loop Count :
-
+    - Threads : 5000
+    - Ramp-Up Period : 600 
+    - Loop Count : 200
+    - Keep Alive : ON
+   
+![1](redisqueue/src/main/resources/static/images/1.png)
 
 ## G. 개발 결과물을 사용하는 방법 소개 (설치 방법, 동작 방법 등)
 
