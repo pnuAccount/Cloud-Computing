@@ -11,7 +11,10 @@ Redis 기반 예약 대기열 시스템: 티켓팅 시나리오
   - jmeter 부하 테스트 환경 구축
   - Spring filter/interceptor 이용한 접속자 쿠키 발급
 - 송승우
-  - ㅇㅇ
+  - AWS Fargate 기반 ECS 서비스 구성 및 배포
+  - Terraform을 활용한 전체 인프라 자동화 구축
+  - AWS 주요 서비스(VPC, Subnet, ALB, CloudWatch, IAM 등) 설정 및 연동
+  - ECS 오토스케일링 및 보안 정책 구성
 - 하창민
   - ㅇㅇ
 
