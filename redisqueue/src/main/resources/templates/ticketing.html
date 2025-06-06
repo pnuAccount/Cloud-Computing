@@ -2,21 +2,114 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>티켓팅 페이지</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #dee2e6, #f1f3f5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .card {
+            background-color: white;
+            padding: 2rem 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .card h1, .card h3 {
+            color: #343a40;
+            text-align: center;
+        }
+
+        .info p {
+            font-size: 1rem;
+            color: #495057;
+            margin: 0.5rem 0;
+        }
+
+        label {
+            display: block;
+            margin: 0.5rem 0;
+            color: #495057;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.6rem;
+            margin-top: 0.2rem;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            background-color: #f8f9fa;
+        }
+
+        button {
+            margin-top: 1rem;
+            width: 100%;
+            padding: 0.7rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #applyBtn {
+            background-color: #28a745;
+        }
+
+        #applyBtn:hover {
+            background-color: #1e7e34;
+        }
+    </style>
 </head>
 <body>
-<h1>Welcome to the Ticketing Page!</h1>
-<p>Your visitor ID: <span th:text="${visitorId}">UUID</span></p>
-<p>Your server IP: <span th:text="${serverIp}">UUID</span></p>
-<p>Your server Name: <span th:text="${serverName}">UUID</span></p>
+<div class="container">
+    <!-- 방문자 정보 카드 -->
+    <div class="card info">
+        <h1>🎟️ Welcome to the Ticketing Page!</h1>
+        <p>Your visitor ID: <span th:text="${visitorId}">UUID</span></p>
+        <p>Your server IP: <span th:text="${serverIp}">127.0.0.1</span></p>
+        <p>Your server Name: <span th:text="${serverName}">localhost</span></p>
+    </div>
 
-<div>
-    <h3>Login</h3>
-    <label>ID: <input type="text" id="loginId"></label><br>
-    <label>Password: <input type="password" id="loginPw"></label><br>
-    <button id="loginBtn">로그인</button>
+    <!-- 로그인 카드 -->
+    <div class="card login">
+        <h3>🔐 Login</h3>
+        <label>ID: <input type="text" id="loginId"></label>
+        <label>Password: <input type="password" id="loginPw"></label>
+        <button id="loginBtn">로그인</button>
+    </div>
+
+    <!-- 예약 신청 버튼 -->
+    <button id="applyBtn">예약 신청</button>
 </div>
 
-<button id="applyBtn">예약 신청</button>
 <script>
     document.getElementById('loginBtn').addEventListener('click', function () {
         const id = document.getElementById('loginId').value;
@@ -27,28 +120,27 @@
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: 'same-origin', // 쿠키 자동 포함
+            credentials: 'same-origin',
             body: JSON.stringify({
                 id: id,
                 password: pw
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-        })
-        .catch(error => console.error('Login error:', error));
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => console.error('Login error:', error));
     });
-
 
     document.getElementById('applyBtn').addEventListener('click', function() {
         fetch('/apply', {
             method: 'POST',
-            credentials: 'same-origin' // 쿠키 포함해서 보내기
+            credentials: 'same-origin'
         })
-        .then(response => response.text())
-        .then(data => alert(data))
-        .catch(error => console.error('Error:', error));
+            .then(response => response.text())
+            .then(data => alert(data))
+            .catch(error => console.error('Error:', error));
     });
 </script>
 </body>
