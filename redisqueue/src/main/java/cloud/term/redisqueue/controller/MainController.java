@@ -3,6 +3,7 @@ package cloud.term.redisqueue.controller;
 //import cloud.term.redisqueue.service.VisitorQueueService;
 import cloud.term.redisqueue.model.BookingRequestResult;
 import cloud.term.redisqueue.service.BookingService;
+import cloud.term.redisqueue.service.LoginService;
 import cloud.term.redisqueue.service.RedisVisitorQueueService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 public class MainController {
     private final RedisVisitorQueueService redisVisitorQueueService;
     private final BookingService bookingService;
+    private final LoginService loginService;
 
     @GetMapping("/")
     public String home(Model model, HttpSession session) {
@@ -66,15 +68,33 @@ public class MainController {
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
-    @PostMapping("/apply")
-    public ResponseEntity<String> apply(HttpSession session) {
+
+    /*
+        public ResponseEntity<String> apply(HttpSession session) {
         String visitorId = (String) session.getAttribute("visitor_id");
 
         if (visitorId == null) {
             return ResponseEntity.badRequest().body("방문자 ID가 없습니다.");
         }
+     */
 
-        BookingRequestResult result = bookingService.addBookingRequest(visitorId);
+    @PostMapping("/apply")
+    public ResponseEntity<String> apply(HttpSession session) {
+        log.warn("apply");
+        String cookie = (String) session.getAttribute("visitor_id");
+
+        if (cookie == null || !loginService.isValidCookie(cookie)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("로그인된 사용자만 예약할 수 있습니다.");
+        }
+
+        String userId = loginService.getIdFromCookie(cookie);
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("인증되지 않은 쿠키입니다.");
+        }
+
+        BookingRequestResult result = bookingService.addBookingRequest(userId);
 
         return switch (result) {
             case ALREADY_BOOKED -> ResponseEntity.status(HttpStatus.CONFLICT).body("이미 예약이 완료된 사용자입니다.");

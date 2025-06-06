@@ -8,8 +8,39 @@
 <p>Your visitor ID: <span th:text="${visitorId}">UUID</span></p>
 <p>Your server IP: <span th:text="${serverIp}">UUID</span></p>
 <p>Your server Name: <span th:text="${serverName}">UUID</span></p>
+
+<div>
+    <h3>Login</h3>
+    <label>ID: <input type="text" id="loginId"></label><br>
+    <label>Password: <input type="password" id="loginPw"></label><br>
+    <button id="loginBtn">로그인</button>
+</div>
+
 <button id="applyBtn">예약 신청</button>
 <script>
+    document.getElementById('loginBtn').addEventListener('click', function () {
+        const id = document.getElementById('loginId').value;
+        const pw = document.getElementById('loginPw').value;
+
+        fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin', // 쿠키 자동 포함
+            body: JSON.stringify({
+                id: id,
+                password: pw
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => console.error('Login error:', error));
+    });
+
+
     document.getElementById('applyBtn').addEventListener('click', function() {
         fetch('/apply', {
             method: 'POST',
