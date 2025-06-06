@@ -56,8 +56,8 @@ public class VisitorCountingFilter implements Filter {
     private void setVisitorCookie(HttpServletResponse response, String visitorId) {
         Cookie cookie = new Cookie("visitor_id", visitorId);
         cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true); // HTTPS 사용 시
+        cookie.setHttpOnly(false);
+        cookie.setSecure(false); // HTTPS 사용 시
         cookie.setMaxAge(60 * 60); // 1 시간 유지
         response.addCookie(cookie);
     }

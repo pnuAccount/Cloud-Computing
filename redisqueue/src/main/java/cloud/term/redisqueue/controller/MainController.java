@@ -80,9 +80,7 @@ public class MainController {
 
     @PostMapping("/apply")
     public ResponseEntity<String> apply(HttpSession session) {
-        log.warn("apply");
         String cookie = (String) session.getAttribute("visitor_id");
-
         if (cookie == null || !loginService.isValidCookie(cookie)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("로그인된 사용자만 예약할 수 있습니다.");
@@ -103,6 +101,8 @@ public class MainController {
             case QUEUED_SUCCESS -> ResponseEntity.ok("예매 요청이 정상적으로 접수되었습니다.");
         };
     }
+
+
 /*
     @PostMapping("/ping")
     @ResponseBody
