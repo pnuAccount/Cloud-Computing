@@ -61,6 +61,21 @@ Redis 기반 예약 대기열 시스템: 티켓팅 시나리오
   - IEEE: Designing Scalable Ticketing Systems for High-Concurrency Events
   - 사용자 상태 기반의 대기열 관리 방식 제안
 
+- AWS Fargate 기반 서버리스 아키텍처
+  - EC2 인스턴스 없이도 컨테이너를 실행할 수 있는 서버리스 환경 제공
+  - Task 단위로 확장되며, 유지보수가 용이하고 오토스케일링과의 연동이 뛰어남
+
+- Application Load Balancer(ALB)를 활용한 트래픽 분산
+  - L7 계층에서 동작하는 로드밸런서로, 경로 기반 라우팅, 헬스 체크, Sticky Session 등을 지원
+  - 다수의 ECS Task 간 트래픽 분산 및 상태 기반 제어 가능
+
+- CloudWatch 기반 오토스케일링 정책
+  - ECS 서비스의 CPU 사용률을 기반으로 자동 확장 및 축소 수행
+  - Step Scaling 방식으로 민감하게 트래픽 변화 대응 가능
+
+- Terraform 기반 Infrastructure as Code (IaC)
+  - 인프라 리소스를 코드로 선언하고 관리할 수 있는 도구
+
 
 ## F. 프로젝트 개발 결과물 소개  (+다이어그램)
 
