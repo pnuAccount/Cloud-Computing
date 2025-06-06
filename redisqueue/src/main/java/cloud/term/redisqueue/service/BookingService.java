@@ -1,5 +1,6 @@
 package cloud.term.redisqueue.service;
 
+import cloud.term.redisqueue.model.BookingStatus;
 import cloud.term.redisqueue.model.BookingRequestResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +53,19 @@ public class BookingService {
         redisTemplate.opsForList().rightPush(QUEUE_KEY, visitorId);
         log.info("[예약 요청 큐 등록] {}", visitorId);
         return BookingRequestResult.QUEUED_SUCCESS;
+    }
+
+    public BookingStatus getBookingStatus(String visitorId) {
+        if (Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(BOOKED_SET_KEY, visitorId))) {
+            return BookingStatus.BOOKED;
+        }
+        if (Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(QUEUED_SET_KEY, visitorId))) {
+            return BookingStatus.QUEUED;
+        }
+        if (Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(REJECTED_SET_KEY, visitorId))) {
+            return BookingStatus.REJECTED;
+        }
+        return BookingStatus.NOT_FOUND; // Not found in any of the specific booking sets
     }
 
 

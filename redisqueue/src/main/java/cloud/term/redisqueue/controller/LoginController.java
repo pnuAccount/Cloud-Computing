@@ -1,10 +1,13 @@
 package cloud.term.redisqueue.controller;
 
+import cloud.term.redisqueue.model.BookingStatus;
+import cloud.term.redisqueue.service.BookingService;
 import cloud.term.redisqueue.service.LoginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -13,6 +16,7 @@ import java.util.Map;
 public class LoginController {
 
     private final LoginService loginService;
+    private final BookingService bookingService;
 
     @PostMapping("/login")
     public Map<String, String> login(@RequestBody Map<String, String> loginRequest,
@@ -29,7 +33,17 @@ public class LoginController {
 
         if (success) {
             loginService.registerSession(id, cookie);
-            return Map.of("status", "ok", "message", "Login successful");
+
+            BookingStatus currentBookingStatus = bookingService.getBookingStatus(id);
+
+            // Create a mutable map to add the booking status
+            Map<String, String> response = new HashMap<>();
+            response.put("status", "ok");
+            response.put("message", "Login successful");
+            // Add the booking status to the response
+            response.put("bookingStatus", currentBookingStatus.name()); // Send the enum name as a string
+
+            return response;
         } else {
             return Map.of("status", "fail", "message", "Invalid credentials");
         }
