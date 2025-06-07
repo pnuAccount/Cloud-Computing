@@ -17,8 +17,11 @@ Redis 기반 예약 대기열 시스템: 티켓팅 시나리오
   - 오토스케일링 정책 구성: CloudWatch Metric 기반 ECS 서비스 확장/축소 설정
   - Terraform을 활용한 전체 인프라 코드화 및 자동화 구현
 - 하창민
-  - ㅇㅇ
-
+  - Spring MVC 기반 티켓팅 서비스 구현
+  - 쿠키 기반 로그인 세션 관리 및 인증 로직 개발
+  - Redis 기반 상태 관리 및 분산 환경 대응
+  - 동시성 대응을 위한 상태 기반 예약 처리 로직 구현
+  - 프론트엔드와의 통신 최적화
 
 ## C. 프로젝트 소개
 본 프로젝트는 Redis의 다양한 자료구조와 기능을 활용해 확장성 있는 예약 대기열 시스템을 구현한다.
@@ -84,11 +87,16 @@ Redis 기반 예약 대기열 시스템: 티켓팅 시나리오
     src/
     ├── config/                       # Redis/Spring 설정
     ├── controller/                   # API 엔드포인트
-    ├── service/                      # 비즈니스 로직
-    │   ├── BookingService.java       # 예약 처리
-    │   └── RedisSettingsService.java # 설정 관리
     ├── filter/                       # 방문자 추적
-    └── scheduler/                    # 대기열 처리
+    ├── service/                      # 비즈니스 로직
+    │   ├── BookingService.java       # 예약 신청 및 상태 조회
+    │   ├── RedisVisitorQueueService  # 사용자 등록
+    │   ├── LoginService.java         # 사용자 인증
+    │   └── RedisSettingsService.java # Redis 기반 시스템 설정 관리
+    ├── interceptor/                  # 로그인 상태 확인용 인터셉터
+    ├── processor/                    # 예약 대기열 비동기 처리
+    └── model/                        # 도메인 및 응답 모델
+
     ```
 
 
@@ -97,41 +105,69 @@ Redis 기반 예약 대기열 시스템: 티켓팅 시나리오
      - 모든 요청에 대해 필터링하여 방문자 쿠키 확인/생성
      - UUID로 생성된 고유 visitor_id를 쿠키와 세션에 저장
      - 방문자 정보를 Redis에 저장
-  2. 예약 대기열 시스템
-     - 3개의 주요 Redis 자료구조 사용:
+     - visitor_id는 이후 로그인/예약 처리에 고유 식별자로 사용
+  2. 로그인 시스템
+     - 사용자 ID와 비밀번호를 기반으로 인증 (현재는 더미 검증)
+     - 인증 성공 시 양방향 매핑을 Redis에 저장하여 세션 관리
+       - login:id-cookie (Hash): id → cookie(visitor_id)
+       - login:cookie-id (Hash): cookie(visitor_id) → id
+     - 로그인 상태는 Redis의 매핑을 기반으로 각 사용자에게 상태 표시됨
+  3. 예약 대기열 시스템
+     - 4개의 주요 Redis 자료구조 사용:
        - booking:queue:list (List): 예약 요청 대기열 (FIFO)
-       - booking:booked:set (Set): 예약 확정 사용자 집합
        - booking:queued:set (Set): 대기열 사용자 집합 (중복 방지)
-     - 분산 락(booking:lock) 구현으로 동시성 제어 (5초 TTL)
-     - maxBooking 설정값에 따라 예약 정원 관리 
-  3. 동적 설정 관리 시스템
+       - booking:booked:set (Set): 예약 확정 사용자 집합
+       - booking:rejected:set (Set): 예약 실패 사용자 집합
+     - 사용자의 현재 예약 상태 확인은 BookingStatus 내부 변수를 사용:
+       - BOOKED: 예약 완료
+       - QUEUED: 예약 신청 진행 중
+       - REJECTED: 예약 실패(신청하였지만 예약 안됨)
+       - NOT_FOUND: 아직 신청하지 않음
+     - 사용자는 처음 접속했을 때 NOT_FOUND 상태
+     - 예약 신청 직후 상태는 QUEUED으로 설정되고, 스케줄러에서 실제 예약 처리
+       - 예약 정원이 가득 찼을 경우,
+         - 사용자 ID를 booking:rejected:set에 저장
+         - 사용자는 REJECTED 상태로 설정
+       - 예약이 가능한 경우,
+         - 사용자 ID를 booking:booked:set에 저장
+         - 사용자는 BOOKED 상태로 설정
+     - 스케줄러는 분산 락(booking:lock) 구현으로 동시성 제어 (5초 TTL)
+     - maxBooking 설정값에 따라 예약 정원 관리
+  4. 동적 설정 관리 시스템
       - 애플리케이션 시작 시 기본 설정값 자동 생성:
-        - maxBooking: 3
-        - visitorTTLMinutes: 10
-        - bookingLockTTLSeconds: 5
+        - maxBooking: 3 (예약 가능 인원)
+        - visitorTTLMinutes: 10 (방문자 세션 유지 시간)
+        - bookingLockTTLSeconds: 5 (분산락 TTL)
      - Redis Setting
+       - Redis의 Hash (booking:settings)에 설정을 저장
+       - 모든 시스템은 주기적으로 Redis에 저장된 설정 값을 참조
        - 관리자 페이지(/system)에서 실시간으로 최대 예약자 수 변경 가능
-  4. 트래픽 제어 시스템
+  5. 트래픽 제어 시스템
      - "/" 및 "/ticketing" 경로에 대한 요청 인터셉트
      - 방문자 정보를 Redis에 저장 
-  5. 관리자 대시보드
+  6. 관리자 대시보드
      - /system 경로로 설정값 조회/수정 기능 제공
      - RedisSettingsService와 연동하여 실시간 설정 관리
-  6. Redis 사용 패턴 요약
+  7. Redis 사용 패턴 요약
 
      | Redis Key              | 용도                       | 자료구조              |
      | ---------------------- | ------------------------ | ----------------- |
      | `booking:settings`     | 시스템 전체 설정값 저장            | Hash              |
      | `booking:booked:set`   | 예약 확정된 사용자 목록            | Set               |
-     | `booking:queued:set`   | 대기열에 등록된 사용자 목록          | Set               |
-     | `booking:queue:list`   | 예약 요청 순서를 유지하기 위한 큐      | List              |
+     | `booking:rejected:set` | 예약 거절된 사용자 목록            | Set               |
+     | `booking:queued:set`   | 대기열에 등록된 사용자 목록          | Set               |     
+     | `booking:queue:list`   | 예약 요청 순서를 유지하기 위한 큐      | List            |
+     | `login:id-cookie`	    | 사용자 ID → visitor_id (cookie) 매핑 | 	Hash          |
+     | `login:cookie-id`	    | visitor_id (cookie) → 사용자 ID 매핑 | 	Hash          |
      | `booking:lock`         | 예약 처리에 대한 분산락            | String (with TTL) |
 
-  7. 시스템 흐름
+  8. 시스템 흐름
      1. 사용자 접속 → VisitorCountingFilter가 visitor_id 생성/확인
-     2. 예약 요청(/apply) → BookingService가 대기열 등록
-     3. 스케줄러가 최대 예약자 수 기반, 주기적 대기열 처리
-     4. 관리자는 /system 페이지에서 실시간으로 시스템 설정 조정
+     2. 로그인(/login) → LoginService가 Redis에 id와 visitor_id 매핑해서 저장
+     3. 예약 요청(/apply) → BookingService가 대기열 등록
+     4. 스케줄러가 최대 예약자 수 기반, 주기적 대기열 처리
+     5. 예약 상태 및 설정값은 모두 Redis를 통해 조회되고 UI에 반영
+     6. 관리자는 /system 페이지에서 실시간으로 시스템 설정 조정
 
 
 - infra 구축
