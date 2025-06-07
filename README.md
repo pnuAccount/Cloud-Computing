@@ -166,13 +166,13 @@ Redis 기반 예약 대기열 시스템: 티켓팅 시나리오
 
 
 - 부하 테스트 시나리오
-  - jmeter 셋팅
-    - Threads : 5000
-    - Ramp-Up Period : 600 
-    - Loop Count : 200
+  - Jmeter 셋팅
+    - Threads : 6000
+    - Ramp-Up Period : 480 
+    - Loop Count : 500
     - Keep Alive : ON
-   
-![1](redisqueue/src/main/resources/static/images/1.png)
+  - 부하 테스트 결과
+    <img src="redisqueue/src/main/resources/static/images/2.png" width="350">
 
 ## G. 개발 결과물을 사용하는 방법 소개 (설치 방법, 동작 방법 등)
 
