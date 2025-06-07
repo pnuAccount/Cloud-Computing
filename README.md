@@ -171,8 +171,7 @@ Redis 기반 예약 대기열 시스템: 티켓팅 시나리오
     - Ramp-Up Period : 480 
     - Loop Count : 500
     - Keep Alive : ON
-  - 부하 테스트 결과
-    <img src="redisqueue/src/main/resources/static/images/2.png" width="350">
+  <img src="redisqueue/src/main/resources/static/images/2.png" width="350">
 
 ## G. 개발 결과물을 사용하는 방법 소개 (설치 방법, 동작 방법 등)
 
