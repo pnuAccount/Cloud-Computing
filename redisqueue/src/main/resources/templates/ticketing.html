@@ -3,7 +3,6 @@
 <head>
     <title>티켓팅 페이지</title>
     <style>
-        /* 기존 스타일은 그대로 유지 */
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -131,7 +130,6 @@
             <button id="loginBtn">로그인</button>
         </div>
 
-        <!-- 로그인 되었을 때 보여질 환영 메시지 -->
         <div class="card info" th:if="${loggedIn}">
             <h3>🎉 Logged In Successfully!</h3>
             <p>Welcome, <span style="font-weight: bold;" th:text="${loggedInId}">user</span>!</p>
@@ -139,7 +137,7 @@
         </div>
 
         <!-- 예약 신청 버튼: 로그인 되었으면 활성화, 아니면 비활성화 -->
-        <button id="applyBtn" th:disabled="${!loggedIn} or ${bookingStatus == 'BOOKED'} or ${bookingStatus == 'QUEUED'}">예약 신청</button>
+        <button id="applyBtn" th:disabled="${!loggedIn} or ${loggedInIdStatus == 'BOOKED'} or ${loggedInIdStatus == 'QUEUED'}">예약 신청</button>
     </div>
 
     <div class="right-column">
