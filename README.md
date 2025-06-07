@@ -6,22 +6,6 @@ Redis 기반 예약 대기열 시스템: 티켓팅 시나리오
 
 
 ## B. 프로젝트 멤버 이름 및 멤버 별 담당 파트
-
-- 편경찬
-  - jmeter 부하 테스트 환경 구축
-  - Spring filter/interceptor 이용한 접속자 쿠키 발급
-- 송승우
-  - AWS 기반 인프라 구성: VPC, 퍼블릭 서브넷, 라우팅 테이블, IGW, 보안 그룹 설정
-  - ECS 아키텍처 설계: Fargate 기반의 ECS Cluster, Task Definition, Service 구성
-  - 로드 밸런서 설정: ALB, Target Group, Listener를 통한 트래픽 분산
-  - 오토스케일링 정책 구성: CloudWatch Metric 기반 ECS 서비스 확장/축소 설정
-  - Terraform을 활용한 전체 인프라 코드화 및 자동화 구현
-- 하창민
-  - Spring MVC 기반 티켓팅 서비스 구현
-  - 쿠키 기반 로그인 세션 관리 및 인증 로직 개발
-  - Redis 기반 상태 관리 및 분산 환경 대응
-  - 동시성 대응을 위한 상태 기반 예약 처리 로직 구현
-  - 프론트엔드와의 통신 최적화
  
 | 이름   | 담당 파트 및 주요 역할 |
 |--------|--------------------------|
