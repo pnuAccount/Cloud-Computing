@@ -2,6 +2,7 @@ package cloud.term.redisqueue.controller;
 
 //import cloud.term.redisqueue.service.VisitorQueueService;
 import cloud.term.redisqueue.model.BookingRequestResult;
+import cloud.term.redisqueue.model.BookingStatus;
 import cloud.term.redisqueue.service.BookingService;
 import cloud.term.redisqueue.service.LoginService;
 import cloud.term.redisqueue.service.RedisVisitorQueueService;
@@ -41,18 +42,30 @@ public class MainController {
         String visitorId = (String) session.getAttribute("visitor_id");
         model.addAttribute("visitorId", visitorId);
 
+        boolean loggedIn = loginService.isValidCookie(visitorId);
+        String loggedInId = "";
+        String loggedInIdStatus = "UNKNOWN";
+        if(loggedIn){
+            loggedInId = loginService.getIdFromCookie(visitorId);
+            loggedInIdStatus = bookingService.getBookingStatusasString(loggedInId);
+        }
+
         String serverlocalHostIpAddress;
         String serverlocalHostName;
         try {
             InetAddress serverlocalHost = InetAddress.getLocalHost();
             serverlocalHostIpAddress= serverlocalHost.getHostAddress();
             serverlocalHostName= serverlocalHost.getHostName();
+
         } catch(UnknownHostException e){
             serverlocalHostIpAddress = "Error id";
             serverlocalHostName = "Error name";
         }
         model.addAttribute("serverIp", serverlocalHostIpAddress);
         model.addAttribute("serverName", serverlocalHostName);
+        model.addAttribute("loggedIn", loggedIn);
+        model.addAttribute("loggedInId", loggedInId);
+        model.addAttribute("loggedInIdStatus", loggedInIdStatus);
         return "ticketing";
     }
 

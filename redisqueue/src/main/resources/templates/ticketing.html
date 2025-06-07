@@ -3,6 +3,7 @@
 <head>
     <title>티켓팅 페이지</title>
     <style>
+        /* 기존 스타일은 그대로 유지 */
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -18,15 +19,15 @@
             height: 100vh;
         }
 
-        .main-content-wrapper { /* New wrapper for side-by-side layout */
+        .main-content-wrapper {
             display: flex;
-            gap: 2rem; /* Space between the two columns */
-            align-items: flex-start; /* Align items to the top */
+            gap: 2rem;
+            align-items: flex-start;
             width: 100%;
-            max-width: 1000px; /* Increased max-width to accommodate two columns */
+            max-width: 1000px;
         }
 
-        .left-column { /* Wrapper for the existing content */
+        .left-column {
             display: flex;
             flex-direction: column;
             gap: 2rem;
@@ -35,15 +36,13 @@
             max-width: 500px;
         }
 
-        .right-column { /* New column for the logged-in status card */
+        .right-column {
             display: flex;
             flex-direction: column;
             gap: 2rem;
             align-items: center;
             width: 100%;
             max-width: 500px;
-            /* Initially hidden, will be shown on login */
-            display: none;
         }
 
         .card {
@@ -124,31 +123,49 @@
             <p>Your server Name: <span th:text="${serverName}">localhost</span></p>
         </div>
 
-        <div class="card login">
+        <!-- 로그인 안된 경우에만 로그인폼 보이게 -->
+        <div class="card login" th:if="${!loggedIn}">
             <h3>🔐 Login</h3>
             <label>ID: <input type="text" id="loginId"></label>
             <label>Password: <input type="password" id="loginPw"></label>
             <button id="loginBtn">로그인</button>
         </div>
 
-        <button id="applyBtn" disabled>예약 신청</button>
+        <!-- 로그인 되었을 때 보여질 환영 메시지 -->
+        <div class="card info" th:if="${loggedIn}">
+            <h3>🎉 Logged In Successfully!</h3>
+            <p>Welcome, <span style="font-weight: bold;" th:text="${loggedInId}">user</span>!</p>
+            <p>You can now proceed with your reservation.</p>
+        </div>
+
+        <!-- 예약 신청 버튼: 로그인 되었으면 활성화, 아니면 비활성화 -->
+        <button id="applyBtn" th:disabled="${!loggedIn} or ${bookingStatus == 'BOOKED'} or ${bookingStatus == 'QUEUED'}">예약 신청</button>
     </div>
 
-    <div class="right-column" id="loggedInStatusColumn">
-        <div class="card info">
+    <div class="right-column">
+        <div class="card info" th:if="${!loggedIn}">
             <h3>Logged-in Status</h3>
             <p>You are not logged in yet.</p>
+        </div>
+
+        <div class="card info" th:if="${loggedIn}">
+            <h3>✅ Current Status</h3>
+            <p style="font-weight: bold; color: #28a745;">Logged in as: <span th:text="${loggedInId}">user</span></p>
+            <p th:switch="${loggedInIdStatus}">
+                <span th:case="'BOOKED'" style="font-weight: bold; color: #28a745;">You have successfully booked your ticket!</span>
+                <span th:case="'QUEUED'" style="font-weight: bold; color: #ffc107;">You are currently in the waiting queue.<br/>Please wait for your turn.</span>
+                <span th:case="'REJECTED'" style="font-weight: bold; color: #dc3545;">Unfortunately, your previous booking request was rejected.<br/>You can try again.</span>
+                <span th:case="'NOT_FOUND'" style="font-weight: bold; color: #007bff;">You haven't made a booking request yet.<br/>Click '예약 신청' to start your reservation.</span>
+                <span th:case="*">Your booking status is: <span th:text="${loggedInIdStatus}">Unknown</span></span>
+            </p>
         </div>
     </div>
 </div>
 
 <script>
-    document.getElementById('loginBtn').addEventListener('click', function () {
+    document.getElementById('loginBtn')?.addEventListener('click', function () {
         const id = document.getElementById('loginId').value;
         const pw = document.getElementById('loginPw').value;
-        const loggedInStatusColumn = document.getElementById('loggedInStatusColumn');
-        const loggedInStatusCard = loggedInStatusColumn.querySelector('.card.info');
-
 
         fetch('/login', {
             method: 'POST',
@@ -161,71 +178,17 @@
                 password: pw
             })
         })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message); // Show success message
-                // Hide the login card
-                document.querySelector('.login').style.display = 'none';
-
-                // Create and show a logged-in message
-                const container = document.querySelector('.left-column'); // Insert into the left column
-                const loggedInCard = document.createElement('div');
-                loggedInCard.className = 'card info'; // Reusing info card style
-                loggedInCard.innerHTML = `
-                    <h3>🎉 Logged In Successfully!</h3>
-                    <p>Welcome, <span style="font-weight: bold;">${id}</span>!</p>
-                    <p>You can now proceed with your reservation.</p>
-                `;
-                container.insertBefore(loggedInCard, document.getElementById('applyBtn')); // Insert before the apply button
-
-                // Enable the apply button if it was disabled before login
-                document.getElementById('applyBtn').disabled = false;
-
-                // Update the right-column card with logged-in status
-
-                let statusMessage = "<p>Retrieving booking status...</p>";
-
-                if (data.bookingStatus) {
-                    switch (data.bookingStatus) {
-                        case 'BOOKED':
-                            statusMessage = "<p style='font-weight: bold; color: #28a745;'>You have successfully booked your ticket!</p>";
-                            document.getElementById('applyBtn').disabled = true; // Disable apply button if already booked
-                            break;
-                        case 'QUEUED':
-                            statusMessage = "<p style='font-weight: bold; color: #ffc107;'>You are currently in the waiting queue.</p>";
-                            statusMessage += "<p>Please wait for your turn.</p>";
-                            document.getElementById('applyBtn').disabled = true; // Disable apply button if already queued
-                            break;
-                        case 'REJECTED':
-                            statusMessage = "<p style='font-weight: bold; color: #dc3545;'>Unfortunately, your previous booking request was rejected.</p>";
-                            statusMessage += "<p>The capacity might have been full. You can try again.</p>";
-                            // Keep apply button enabled so they can retry
-                            break;
-                        case 'NOT_FOUND':
-                            statusMessage = "<p style='font-weight: bold; color: #007bff;'>You haven't made a booking request yet.</p>";
-                            statusMessage += "<p>Click '예약 신청' to start your reservation.</p>";
-                            // Keep apply button enabled
-                            break;
-                        default:
-                            statusMessage = "<p>Your booking status is: " + data.bookingStatus + "</p>";
-                            // Default action: keep apply button enabled
-                            break;
-                    }
-                } else {
-                    statusMessage = "<p>Booking status not provided by server.</p>";
-                }
-
-                loggedInStatusCard.innerHTML = `
-                    <h3>✅ Current Status</h3>
-                    <p style="font-weight: bold; color: #28a745;">Logged in as: ${id}</p>
-                    ${statusMessage}
-                `;
-                loggedInStatusColumn.style.display = 'flex'; // Show the right column
-            })
-            .catch(error => {
-                console.error('Login error:', error);
-                alert('An error occurred during login. Please try again.');
-            });
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.status === 'ok') {
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Login error:', error);
+            alert('An error occurred during login. Please try again.');
+        });
     });
 
     document.getElementById('applyBtn').addEventListener('click', function() {

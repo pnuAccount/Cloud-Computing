@@ -68,6 +68,19 @@ public class BookingService {
         return BookingStatus.NOT_FOUND; // Not found in any of the specific booking sets
     }
 
+    public String getBookingStatusasString(String visitorId) {
+        if (Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(BOOKED_SET_KEY, visitorId))) {
+            return BookingStatus.BOOKED.name(); // "BOOKED"
+        }
+        if (Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(QUEUED_SET_KEY, visitorId))) {
+            return BookingStatus.QUEUED.name(); // "QUEUED"
+        }
+        if (Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(REJECTED_SET_KEY, visitorId))) {
+            return BookingStatus.REJECTED.name(); // "REJECTED"
+        }
+        return BookingStatus.NOT_FOUND.name(); // "NOT_FOUND"
+    }
+
 
     // 예약 요청 큐에서 하나 꺼내 예약 처리 (스케줄러용)
     public void processNextBookingRequest() {
