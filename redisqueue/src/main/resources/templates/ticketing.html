@@ -136,8 +136,14 @@
             <p>You can now proceed with your reservation.</p>
         </div>
 
-        <!-- 예약 신청 버튼: 로그인 되었으면 활성화, 아니면 비활성화 -->
-        <button id="applyBtn" th:disabled="${!loggedIn} or ${loggedInIdStatus == 'BOOKED'} or ${loggedInIdStatus == 'QUEUED'}">예약 신청</button>
+        <!-- 로그인 된 경우에만 렌더링 -->
+        <div th:if="${loggedIn}">
+            <button id="applyBtn"
+                    th:disabled="${loggedInIdStatus == 'BOOKED'} or ${loggedInIdStatus == 'QUEUED'}">
+                예약 신청
+            </button>
+        </div>
+
     </div>
 
     <div class="right-column">
