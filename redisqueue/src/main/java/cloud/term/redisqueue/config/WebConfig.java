@@ -3,7 +3,6 @@ package cloud.term.redisqueue.config;
 import cloud.term.redisqueue.filter.VisitorCountingFilter;
 import cloud.term.redisqueue.interceptor.TrafficLimitInterceptor;
 import cloud.term.redisqueue.service.RedisVisitorQueueService;
-//import cloud.term.redisqueue.service.VisitorQueueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -11,12 +10,6 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @RequiredArgsConstructor

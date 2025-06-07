@@ -5,8 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -33,16 +31,10 @@ public class LoginService {
         redisTemplate.opsForHash().put(COOKIE_ID_HASH, cookie, id);
     }
 
-    public boolean isValid(String id, String cookie) {
-        Object storedCookie = redisTemplate.opsForHash().get(ID_COOKIE_HASH, id);
-        return storedCookie != null && storedCookie.equals(cookie);
-    }
-
     public boolean isValidCookie(String cookie) {
-        Object storedId = redisTemplate.opsForHash().get(COOKIE_ID_HASH, cookie);
+        String storedId = getIdFromCookie(cookie);
         if (storedId == null) { return false; }
-        Object storedCookie = redisTemplate.opsForHash().get(ID_COOKIE_HASH, storedId);
-
+        String storedCookie = getCookieFromId(storedId);
         return storedCookie != null && storedCookie.equals(cookie);
     }
 
@@ -54,8 +46,5 @@ public class LoginService {
     public String getCookieFromId(String id) {
         Object cookie = redisTemplate.opsForHash().get(ID_COOKIE_HASH, id);
         return cookie != null ? cookie.toString() : null;
-    }
-    public boolean idExists(String id) {
-        return redisTemplate.opsForHash().hasKey(ID_COOKIE_HASH, id);
     }
 }

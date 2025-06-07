@@ -19,11 +19,6 @@ public class VisitorCountingFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         HttpSession session = httpRequest.getSession();
 
-        //String uri = httpRequest.getRequestURI();
-
-        // "/" 경로에 접근할 때만 쿠키 확인 및 발급
-        //if ("/".equals(uri)) {
-
         String visitorId = getVisitorIdFromCookies(httpRequest);
 
         if (visitorId == null) {
@@ -37,7 +32,7 @@ public class VisitorCountingFilter implements Filter {
         }
 
         session.setAttribute("visitor_id", visitorId);
-        //}
+
         chain.doFilter(request, response);
     }
 

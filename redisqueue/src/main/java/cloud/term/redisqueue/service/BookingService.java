@@ -5,7 +5,6 @@ import cloud.term.redisqueue.model.BookingRequestResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;

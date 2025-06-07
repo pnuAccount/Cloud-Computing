@@ -36,12 +36,10 @@ public class LoginController {
 
             BookingStatus currentBookingStatus = bookingService.getBookingStatus(id);
 
-            // Create a mutable map to add the booking status
             Map<String, String> response = new HashMap<>();
             response.put("status", "ok");
             response.put("message", "Login successful");
-            // Add the booking status to the response
-            response.put("bookingStatus", currentBookingStatus.name()); // Send the enum name as a string
+            response.put("bookingStatus", currentBookingStatus.name());
 
             return response;
         } else {
