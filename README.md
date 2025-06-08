@@ -273,6 +273,22 @@ Redis 기반 분산 예약 대기열 시스템: 티켓팅 시나리오
        2. 설정 값 변경 후 '설정 저장' 클릭
        3. 약간의 지연 시간 후 모든 서버에 정보 반영
 
+- infra
+
+1. ECR 이미지 경로 설정
+   
+'''
+cd infra
+echo 'ecr_image = "ecr이미지 경로"' > terraform.tfvars
+'''
+
+2. Terraform 명령어 실행
+
+'''
+terraform init   # Terraform 초기화
+terraform plan   # 리소스 변경사항 확인
+terraform apply  # 인프라 생성
+'''
 
 ## H. 개발 결과물의 활용방안 소개
 
