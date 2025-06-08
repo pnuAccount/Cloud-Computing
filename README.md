@@ -178,6 +178,98 @@ Redis 기반 분산 예약 대기열 시스템: 티켓팅 시나리오
   <img src="redisqueue/src/main/resources/static/images/2.png" width="350">
 
 ## G. 개발 결과물을 사용하는 방법 소개 (설치 방법, 동작 방법 등)
+- redisqueue
+  1. 프로젝트 실행 환경
+     - Java 17 이상
+     - Gradle 8.x 이상
+     - Docker (선택 사항, 로컬 Redis 또는 앱 컨테이너 실행용)
+     - Redis 서버 (로컬 또는 Docker 기반 실행 권장)
+     - IntelliJ IDEA (또는 다른 Java IDE)
+
+  2. 설치 및 초기 설정
+     - GitHub에서 프로젝트 클론:
+      ```bash
+        git clone https://github.com/pnuAccount/Cloud-Computing.git
+        cd Cloud-Computing
+      ```
+     - Redis 서버 실행
+      (로컬 Redis를 사용할 경우 Docker 이용 가능):
+        - 로컬 Redis 실행 명령어
+        ```bash
+          docker run --name redis-local -p 6379:6379 -d redis
+        ```
+        - 혹은 기존의 Redis 서버 이용 (application.properties 설정 필수)
+     - application.properties 설정
+       - Redis 서버 주소 및 포트 등 환경 설정을 지정하는 파일
+       - 위치: Cloud-Computing/redisqueue/src/main/resources/application.properties
+       - 주요 구성은 다음과 같음
+        ```properties
+          spring.application.name=       # 애플리케이션 이름 (로깅, 구성 등에 사용)
+          server.port=                   # 웹 서버 포트 (기본: 8080)
+
+          spring.data.redis.host=        # Redis 서버의 호스트 IP 또는 도메인
+          spring.data.redis.port=        # Redis 포트 (기본: 6379)
+          spring.data.redis.password=    # Redis 비밀번호
+          spring.redis.ssl.enabled=      # SSL 사용 여부(보통은 false, 보안 Redis 서버일 경우 true)
+
+          # 로컬 Redis에서 테스트할 경우, 다음과 같이 설정
+          #  spring.application.name=redisqueue
+          #  server.port=8080
+
+          #  spring.data.redis.host=localhost
+          #  spring.data.redis.port=6379
+          #  spring.redis.ssl.enabled=false
+        ```
+
+  3. 애플리케이션 실행 (로컬 개발용)
+     - IntelliJ에서 실행 (로컬)
+       1. IntelliJ로 프로젝트를 열기
+       2. 'redisqueue/src/main/java/cloud/term/redisqueue/RedisqueueApplication.java' 파일 열기
+       3. main() 함수에서 실행
+       4. 실행 후 브라우저에서 `http://localhost:8080` 접속
+     - 터미널에서 실행 (로컬)
+       1. 최상위 redisqueue 디렉토리에서 다음 명령어 실행:
+         ```bash
+           ./gradlew bootRun
+         ```
+       2. 실행 후 브라우저에서 `http://localhost:8080` 접속
+
+  4. Docker로 패키징 및 실행 (Docker 필요)
+     - ※ Dockerfile은 최상위 redisqueue 디렉토리 (`Cloud-Computing/redisqueue/`)에 위치
+     - 도커 명령어로 실행
+       1. Gradle 빌드 (JAR 생성):
+          - 최상위 redisqueue 디렉토리에서 다음 명령어 실행:
+         ```bash
+           ./gradlew build
+         ```
+          - build/libs/redisqueue-0.0.1-SNAPSHOT.jar 생성 확인
+       2. Docker 이미지 빌드:
+         ```bash
+           docker build -t redisqueue-app .
+         ```
+       3. Docker 컨테이너 실행:
+         ```bash
+           docker run -d -p 8080:8080 --name redisqueue-container redisqueue-app
+         ``` 
+       4. 실행 후 브라우저에서 `http://localhost:8080` 접속
+
+       5. Docker 실행 동작 확인
+         ```bash
+           docker ps                          # 실행 중인 컨테이너 확인
+           docker logs redisqueue-container   # 로그 출력
+         ```
+  5. 동작 방식
+     - 이 애플리케이션은 Redis를 이용한 간단한 대기열(Ticket Queue) 시스템을 구현합니다.
+     - 사용자는 로그인 후 예약 신청 가능
+       1. id 및 비밀번호 입력 후 '로그인' 클릭
+       2. 화면에 출력되는 '예약 신청' 클릭
+          1) 예약 성공 시, 예약 성공 페이지로 이동
+          2) 예약 실패 시, 실패 메시지 출력
+       3. 오른쪽에 출력되는 'Current Status'로 예약 상태 확인 가능
+     - 관리자는 시스템 페이지에서 최대 예약 신청 인원 설정 가능
+       1. 현재 주소에서 '/system' 추가 입력 (예: localhost:8080/system) 
+       2. 설정 값 변경 후 '설정 저장' 클릭
+       3. 약간의 지연 시간 후 모든 서버에 정보 반영
 
 
 ## H. 개발 결과물의 활용방안 소개
