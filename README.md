@@ -290,6 +290,37 @@ terraform plan   # 리소스 변경사항 확인
 terraform apply  # 인프라 생성
 ```
 
+- Jmeter
+
+1. Apache JMeter 설치
+    - JRE 8 이상, 사전 설치 요구
+    - JMeter 다운로드
+        - https://jmeter.apache.org/download_jmeter.cgi
+    - JMeter 실행
+      ```
+      # Linux/macOS
+      cd /path/to/apache-jmeter-X.X/bin
+      ./jmeter.sh
+     
+      # Windows (cmd/PowerShell)
+      cd C:\path\to\apache-jmeter-X.X\bin
+      jmeter.bat
+      ```
+2. PC 네트워크 연결 및 포트 사용량 확인
+    - Windows
+      ```
+      netstat -an | findstr /i "ESTABLISHED"
+      netstat -an | findstr /i "TIME_WAIT"    
+      ```
+    - Linux / macOS
+      ```
+      netstat -an | grep ESTABLISHED | wc -l
+      ```
+3. JMeter Test Plan
+    - Test Plan 추가
+    - HTTP Request Sampler 추가
+    - 리스너(Listener) 추가 (결과 확인)
+
 ## H. 개발 결과물의 활용방안 소개
 
 - 적용 가능 분야
