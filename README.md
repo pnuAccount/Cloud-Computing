@@ -172,12 +172,13 @@ Redis 기반 분산 예약 대기열 시스템: 티켓팅 시나리오
   - Terraform IaC: 전체 인프라를 코드로 관리해 재현성과 유지보수 용이
 
 - 부하 테스트 시나리오
+  ![Image](https://github.com/user-attachments/assets/7c24770d-7cf4-468a-85ab-7c87e6e29e17)
+  
   - Jmeter 셋팅
     - Threads : 6000
     - Ramp-Up Period : 480 
     - Loop Count : 500
     - Keep Alive : ON
-  <img src="redisqueue/src/main/resources/static/images/2.png" width="350">
 
 ## G. 개발 결과물을 사용하는 방법 소개 (설치 방법, 동작 방법 등)
 - redisqueue
