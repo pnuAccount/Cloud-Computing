@@ -71,6 +71,9 @@ Redis 기반 분산 예약 대기열 시스템: 티켓팅 시나리오
 
 
 ## F. 프로젝트 개발 결과물 소개  (+다이어그램)
+- 시스템 아키텍처
+![image](https://github.com/user-attachments/assets/1bf4b710-ea06-409f-bea5-7c48e158e800)
+
 
 - 핵심 컴포넌트
     ```shell
