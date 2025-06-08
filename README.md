@@ -163,6 +163,8 @@ Redis 기반 분산 예약 대기열 시스템: 티켓팅 시나리오
      6. 관리자는 /system 페이지에서 실시간으로 시스템 설정 조정
 
 - infra
+  ![image](https://github.com/user-attachments/assets/16450fed-5f4d-45df-b3c6-fc2c1175703c)
+
   - VPC 및 퍼블릭 서브넷 2개: 서로 다른 AZ에 분산 배치하여 고가용성 확보
   - ECS Fargate 기반 서비스: 컨테이너를 실행하며, Task 자동 확장/축소 지원
   - Application Load Balancer (ALB): 외부 트래픽 수신 및 Target Group으로 분산
