@@ -159,11 +159,12 @@ Redis 기반 분산 예약 대기열 시스템: 티켓팅 시나리오
      5. 예약 상태 및 설정값은 모두 Redis를 통해 조회되고 UI에 반영
      6. 관리자는 /system 페이지에서 실시간으로 시스템 설정 조정
 
-
-- infra 구축
-  - ㅇㅇ
-  - ㅇㅇ
-
+- infra
+  - VPC 및 퍼블릭 서브넷 2개: 서로 다른 AZ에 분산 배치하여 고가용성 확보
+  - ECS Fargate 기반 서비스: 컨테이너를 실행하며, Task 자동 확장/축소 지원
+  - Application Load Balancer (ALB): 외부 트래픽 수신 및 Target Group으로 분산
+  - CloudWatch + Auto Scaling: CPU 사용률 기반으로 ECS Task 수 자동 조절
+  - Terraform IaC: 전체 인프라를 코드로 관리해 재현성과 유지보수 용이
 
 - 부하 테스트 시나리오
   - Jmeter 셋팅
